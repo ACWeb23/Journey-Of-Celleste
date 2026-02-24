@@ -4,7 +4,7 @@ import math
 
 WIDTH, HEIGHT = 1920, 1080
 FRAME_RATE = 60
-TITLE = "I Can"
+TITLE = "Jouney of Celleste"
 
 
 # =========================
@@ -57,33 +57,64 @@ class Player(pygame.sprite.Sprite):
 # ORBITING SWORD
 # =========================
 class Sword(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, owner = None, dmg=10, rad=100, ang=5, col=(0, 255, 0), blades=4):
         super().__init__()
 
-        self.original_image = pygame.Surface((60, 10), pygame.SRCALPHA)
-        self.original_image.fill((0, 255, 0))
-        self.image = self.original_image
-        self.rect = self.image.get_rect()
-
-        self.owner = None
-        self.damage = 10
-        self.radius = 100
+        self.owner = owner  # Require owner at construction
+        self.damage = dmg
+        self.radius = rad
+        self.angular_speed = ang
+        self.color = col
+        self.num_blades = max(1, min(blades, 32))  # Clamp safely
+        
         self.angle = 0
-        self.angular_speed = 5
+        
+        # Pre-create blade template
+        self.blade_template = pygame.Surface((60, 10), pygame.SRCALPHA)
+        self.blade_template.fill(self.color)
+
+        self.blade_images = []
+        self.blade_rects = []
 
     def update(self):
         if not self.owner:
             return
 
         self.angle = (self.angle + self.angular_speed) % 360
-        radians = math.radians(self.angle)
+        self._update_blades()
+
+    def _update_blades(self):
+        """Recalculate blade positions"""
+        self.blade_images.clear()
+        self.blade_rects.clear()
 
         center = self.owner.rect.center
-        x = center[0] + math.cos(radians) * self.radius
-        y = center[1] + math.sin(radians) * self.radius
+        angle_step = 360 / self.num_blades
 
-        self.image = pygame.transform.rotate(self.original_image, -self.angle)
-        self.rect = self.image.get_rect(center=(x, y))
+        for i in range(self.num_blades):
+            blade_angle = self.angle + i * angle_step
+            radians = math.radians(blade_angle)
+
+            x = center[0] + math.cos(radians) * self.radius
+            y = center[1] + math.sin(radians) * self.radius
+
+            rotated = pygame.transform.rotate(self.blade_template, -blade_angle)
+            rect = rotated.get_rect(center=(x, y))
+
+            self.blade_images.append(rotated)
+            self.blade_rects.append(rect)
+
+    def draw(self, surface):
+        for img, rect in zip(self.blade_images, self.blade_rects):
+            surface.blit(img, rect)
+
+    def check_collision(self, enemies):
+        """Damage enemies that collide with blades"""
+        for enemy in enemies:
+            for blade_rect in self.blade_rects:
+                if blade_rect.colliderect(enemy.rect):
+                    enemy.take_damage(self.damage)
+    
 
 
 # =========================
@@ -145,6 +176,12 @@ class SwordDirectional(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(
             center=(center[0] + offset_x, center[1] + offset_y)
     )
+    
+    def check_collision(self, enemies):
+        """Damage enemies that collide with the sword"""
+        for enemy in enemies:
+            if self.rect.colliderect(enemy.rect):
+                enemy.take_damage(self.damage)
 
 
 # =========================
@@ -272,7 +309,7 @@ class EnemySlime(EnemyBase):
 
 class EnemySlimeBoss(EnemyBase):
     def __init__(self, x, y, player, projectile_group):
-        super().__init__(x, y, player, projectile_group, 250)
+        super().__init__(x, y, player, projectile_group, 20)
         self.image.fill((128, 0, 255))
 
 
@@ -341,20 +378,16 @@ class Game:
                 self.player.change_health(-10)
 
             # Weapon damage loop
-            for weapon in [self.sword, self.weap2]:
-                if weapon == self.weap2 and not self.weap2.swinging:
-                    continue
-
-                for group in [self.enemies, self.bosses]:
-                    hits = pygame.sprite.spritecollide(weapon, group, False)
-                    for enemy in hits:
-                        enemy.take_damage(weapon.damage)
+            self.sword.check_collision(self.enemies)
+            self.weap2.check_collision(self.enemies)
+            self.sword.check_collision(self.bosses)
+            self.weap2.check_collision(self.bosses)
 
             # DRAW
             self.screen.fill((0, 0, 0))
 
             self.screen.blit(self.player.image, self.player.rect)
-            self.screen.blit(self.sword.image, self.sword.rect)
+            self.sword.draw(self.screen)
             self.screen.blit(self.weap2.image, self.weap2.rect)
 
             self.enemies.draw(self.screen)
