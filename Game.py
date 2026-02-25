@@ -19,6 +19,7 @@ class Player(pygame.sprite.Sprite):
 
         self.speed = 5
         self.health = 100
+        self.experience = 0
         self.equipment = []
 
     def move(self, dx, dy):
@@ -51,13 +52,16 @@ class Player(pygame.sprite.Sprite):
     def equip(self, item):
         self.equipment.append(item)
         item.owner = self
+    
+    def get_XP(self, amount):
+        self.experience += amount
 
 
 # =========================
 # ORBITING SWORD
 # =========================
 class Sword(pygame.sprite.Sprite):
-    def __init__(self, owner = None, dmg=10, rad=100, ang=5, col=(0, 255, 0), blades=4):
+    def __init__(self, owner = None, dmg=10, rad=100, ang=5, col=(0, 255, 0), blades=2):
         super().__init__()
 
         self.owner = owner  # Require owner at construction
@@ -185,7 +189,7 @@ class SwordDirectional(pygame.sprite.Sprite):
 
 
 # =========================
-# PROJECTILE
+# PROJECTILES
 # =========================
 class Projectile(pygame.sprite.Sprite):
     def __init__(self, start_pos, target_pos):
@@ -219,12 +223,36 @@ class Projectile(pygame.sprite.Sprite):
         ):
             self.kill()
 
+# =========================
+# PROJECTILE Arrow
+# =========================
+
+class ProjectileArrow(Projectile):
+    def __init__(self, start_pos, target_pos):
+        super().__init__(start_pos, target_pos)
+
+        self.image = pygame.Surface((20, 5), pygame.SRCALPHA)
+        pygame.draw.rect(self.image, (255, 255, 0), (0, 0, 20, 5))
+        self.rect = self.image.get_rect(center=start_pos)
+
+        # Recalculate velocity for arrow speed
+        self.speed = 5
+        dx = target_pos[0] - start_pos[0]
+        dy = target_pos[1] - start_pos[1]
+        dist = math.hypot(dx, dy)
+
+        if dist != 0:
+            dx /= dist
+            dy /= dist
+
+        self.velocity = (dx * self.speed, dy * self.speed)
+
 
 # =========================
 # ENEMY BASE
 # =========================
 class EnemyBase(pygame.sprite.Sprite):
-    def __init__(self, x, y, player, projectile_group, health):
+    def __init__(self, x, y, player, projectile_group, health, experience_value = 1):
         super().__init__()
 
         self.image = pygame.Surface((40, 40))
@@ -236,6 +264,7 @@ class EnemyBase(pygame.sprite.Sprite):
 
         self.speed = random.uniform(1.0, 2.5)
         self.health = health
+        self.experience = experience_value
         self.hit_cooldown = 0
 
         self.state = "wander"
@@ -299,6 +328,7 @@ class EnemyBase(pygame.sprite.Sprite):
         self.hit_cooldown = 20
 
         if self.health <= 0:
+            self.player.get_XP(self.experience)
             self.kill()
 
 
@@ -395,7 +425,7 @@ class Game:
             self.projectiles.draw(self.screen)
 
             text = self.font.render(
-                f"Health: {self.player.health}  Enemies: {len(self.enemies)}  Bosses: {len(self.bosses)}",
+                f"Health: {self.player.health}  Enemies: {len(self.enemies)}  Bosses: {len(self.bosses)}    XP: {self.player.experience}",
                 True, (255, 255, 255)
             )
             self.screen.blit(text, (1400, 1000))
