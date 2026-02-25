@@ -1,5 +1,5 @@
 2D rogue-lite game
-Goals
+/nGoals
 -Player eqipment
 -More enemies
 -Pick up buffs
