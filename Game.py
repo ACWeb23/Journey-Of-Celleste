@@ -11,10 +11,13 @@ TITLE = "Jouney of Celleste"
 # PLAYER
 # =========================
 class Player(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+    def __init__(self, x, y, image=None):
         super().__init__()
-        self.image = pygame.Surface((50, 50))
-        self.image.fill((255, 0, 0))
+        if image:
+            self.image = image
+        else:
+            self.image = pygame.Surface((50, 50))
+            self.image.fill((255, 0, 0))
         self.rect = self.image.get_rect(center=(x, y))
 
         self.speed = 5
@@ -55,13 +58,16 @@ class Player(pygame.sprite.Sprite):
     
     def get_XP(self, amount):
         self.experience += amount
+    
+    def check_XP(self):
+        return self.experience
 
 
 # =========================
 # ORBITING SWORD
 # =========================
 class Sword(pygame.sprite.Sprite):
-    def __init__(self, owner = None, dmg=10, rad=100, ang=5, col=(0, 255, 0), blades=2):
+    def __init__(self, owner = None, image=None, dmg=10, rad=100, ang=5, col=(0, 255, 0), blades=2):
         super().__init__()
 
         self.owner = owner  # Require owner at construction
@@ -72,10 +78,15 @@ class Sword(pygame.sprite.Sprite):
         self.num_blades = max(1, min(blades, 32))  # Clamp safely
         
         self.angle = 0
+        self.level = 0
+        self.experience = 0
         
         # Pre-create blade template
-        self.blade_template = pygame.Surface((60, 10), pygame.SRCALPHA)
-        self.blade_template.fill(self.color)
+        if image:
+            self.blade_template = image
+        else:
+            self.blade_template = pygame.Surface((60, 10), pygame.SRCALPHA)
+            self.blade_template.fill(self.color)
 
         self.blade_images = []
         self.blade_rects = []
@@ -118,18 +129,25 @@ class Sword(pygame.sprite.Sprite):
             for blade_rect in self.blade_rects:
                 if blade_rect.colliderect(enemy.rect):
                     enemy.take_damage(self.damage)
-    
+    def gain_experience(self):
+        """
+        if self.game.level_Cleared():
+            self.experience += self.owner.check_XP()/2
+        """
+        pass
 
 
 # =========================
 # DIRECTIONAL SWORD
 # =========================
 class SwordDirectional(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, image=None, owner=None):
         super().__init__()
-
-        self.original_image = pygame.Surface((60, 10), pygame.SRCALPHA)
-        self.original_image.fill((255, 0, 0))
+        if image:
+            self.original_image = image
+        else:
+            self.original_image = pygame.Surface((60, 10), pygame.SRCALPHA)
+            self.original_image.fill((255, 0, 0))
         self.image = self.original_image
         self.rect = self.image.get_rect()
 
@@ -192,11 +210,13 @@ class SwordDirectional(pygame.sprite.Sprite):
 # PROJECTILES
 # =========================
 class Projectile(pygame.sprite.Sprite):
-    def __init__(self, start_pos, target_pos):
+    def __init__(self, start_pos, target_pos, image=None):
         super().__init__()
-
-        self.image = pygame.Surface((12, 12), pygame.SRCALPHA)
-        pygame.draw.circle(self.image, (255, 0, 0), (6, 6), 6)
+        if image:
+            self.image = image
+        else:
+            self.image = pygame.Surface((12, 12), pygame.SRCALPHA)
+            pygame.draw.circle(self.image, (255, 0, 0), (6, 6), 6)
         self.rect = self.image.get_rect(center=start_pos)
 
         self.speed = 3
@@ -228,11 +248,13 @@ class Projectile(pygame.sprite.Sprite):
 # =========================
 
 class ProjectileArrow(Projectile):
-    def __init__(self, start_pos, target_pos):
+    def __init__(self, start_pos, target_pos, image=None):
         super().__init__(start_pos, target_pos)
-
-        self.image = pygame.Surface((20, 5), pygame.SRCALPHA)
-        pygame.draw.rect(self.image, (255, 255, 0), (0, 0, 20, 5))
+        if image:
+            self.image = image
+        else:
+            self.image = pygame.Surface((20, 5), pygame.SRCALPHA)
+            pygame.draw.rect(self.image, (255, 255, 0), (0, 0, 20, 5))
         self.rect = self.image.get_rect(center=start_pos)
 
         # Recalculate velocity for arrow speed
@@ -252,11 +274,14 @@ class ProjectileArrow(Projectile):
 # ENEMY BASE
 # =========================
 class EnemyBase(pygame.sprite.Sprite):
-    def __init__(self, x, y, player, projectile_group, health, experience_value = 1):
+    def __init__(self, x, y, player, projectile_group, health, experience_value = 1, image=None):
         super().__init__()
 
-        self.image = pygame.Surface((40, 40))
-        self.image.fill((0, 0, 255))
+        if image:
+            self.image = image
+        else:
+            self.image = pygame.Surface((40, 40))
+            self.image.fill((0, 0, 255))
         self.rect = self.image.get_rect(center=(x, y))
 
         self.player = player
