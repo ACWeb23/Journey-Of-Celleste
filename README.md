@@ -1,6 +1,6 @@
-2D rogue-lite game
-/nGoals
--Player eqipment
+# 2D rogue-lite game
+## Goals
+- [ ]Player eqipment
 -More enemies
 -Pick up buffs
 -debuffs
