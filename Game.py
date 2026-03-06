@@ -15,8 +15,8 @@ game_settings = GameSettings()
 WIDTH, HEIGHT, FRAME_RATE, TITLE = game_settings.return_settings()
 
 from Player import Player
-from OrbitingSword import OrbitingSword as Sword
-from DirectionalSword import SwordDirectional
+from Weapons.OrbitingSword import OrbitingSword as Sword
+from Weapons.DirectionalSword import SwordDirectional
 from Enemys.Enemys import EnemySlime, EnemySlimeBoss
 
 # =========================

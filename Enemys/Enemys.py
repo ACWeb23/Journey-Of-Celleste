@@ -74,7 +74,7 @@ class EnemyBase(pygame.sprite.Sprite):
             self.shoot()
 
     def shoot(self):
-        from Projectile import Projectile
+        from Other.Projectile import Projectile
         orb = Projectile(self.rect.center, self.player.rect.center)
         self.projectile_group.add(orb)
 
