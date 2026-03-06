@@ -2,371 +2,22 @@ import random
 import pygame
 import math
 
-WIDTH, HEIGHT = 1920, 1080
-FRAME_RATE = 60
-TITLE = "Jouney of Celleste"
-
-
-# =========================
-# PLAYER
-# =========================
-class Player(pygame.sprite.Sprite):
-    def __init__(self, x, y, image=None):
-        super().__init__()
-        if image:
-            self.image = image
-        else:
-            self.image = pygame.Surface((50, 50))
-            self.image.fill((255, 0, 0))
-        self.rect = self.image.get_rect(center=(x, y))
-
-        self.speed = 5
-        self.health = 100
-        self.experience = 0
-        self.equipment = []
-
-    def move(self, dx, dy):
-        self.rect.x += dx * self.speed
-        self.rect.y += dy * self.speed
-
-    def move_logic(self):
-        keys = pygame.key.get_pressed()
-        dx = dy = 0
-
-        if keys[pygame.K_w]:
-            dy = -1
-        if keys[pygame.K_s]:
-            dy = 1
-        if keys[pygame.K_a]:
-            dx = -1
-        if keys[pygame.K_d]:
-            dx = 1
-
-        self.velocity = pygame.Vector2(dx, dy)
-
-        if self.velocity.length() != 0:
-            self.velocity = self.velocity.normalize()
-
-        self.move(self.velocity.x, self.velocity.y)
-
-    def change_health(self, amount):
-        self.health = max(0, min(100, self.health + amount))
-
-    def equip(self, item):
-        self.equipment.append(item)
-        item.owner = self
-    
-    def get_XP(self, amount):
-        self.experience += amount
-    
-    def check_XP(self):
-        return self.experience
-
-
-# =========================
-# ORBITING SWORD
-# =========================
-class Sword(pygame.sprite.Sprite):
-    def __init__(self, owner = None, image=None, dmg=10, rad=100, ang=5, col=(0, 255, 0), blades=2):
-        super().__init__()
-
-        self.owner = owner  # Require owner at construction
-        self.damage = dmg
-        self.radius = rad
-        self.angular_speed = ang
-        self.color = col
-        self.num_blades = max(1, min(blades, 32))  # Clamp safely
-        
-        self.angle = 0
-        self.level = 0
-        self.experience = 0
-        
-        # Pre-create blade template
-        if image:
-            self.blade_template = image
-        else:
-            self.blade_template = pygame.Surface((60, 10), pygame.SRCALPHA)
-            self.blade_template.fill(self.color)
-
-        self.blade_images = []
-        self.blade_rects = []
-
-    def update(self):
-        if not self.owner:
-            return
-
-        self.angle = (self.angle + self.angular_speed) % 360
-        self._update_blades()
-
-    def _update_blades(self):
-        """Recalculate blade positions"""
-        self.blade_images.clear()
-        self.blade_rects.clear()
-
-        center = self.owner.rect.center
-        angle_step = 360 / self.num_blades
-
-        for i in range(self.num_blades):
-            blade_angle = self.angle + i * angle_step
-            radians = math.radians(blade_angle)
-
-            x = center[0] + math.cos(radians) * self.radius
-            y = center[1] + math.sin(radians) * self.radius
-
-            rotated = pygame.transform.rotate(self.blade_template, -blade_angle)
-            rect = rotated.get_rect(center=(x, y))
-
-            self.blade_images.append(rotated)
-            self.blade_rects.append(rect)
-
-    def draw(self, surface):
-        for img, rect in zip(self.blade_images, self.blade_rects):
-            surface.blit(img, rect)
-
-    def check_collision(self, enemies):
-        """Damage enemies that collide with blades"""
-        for enemy in enemies:
-            for blade_rect in self.blade_rects:
-                if blade_rect.colliderect(enemy.rect):
-                    enemy.take_damage(self.damage)
-    def gain_experience(self):
-        """
-        if self.game.level_Cleared():
-            self.experience += self.owner.check_XP()/2
-        """
-        pass
-
-
-# =========================
-# DIRECTIONAL SWORD
-# =========================
-class SwordDirectional(pygame.sprite.Sprite):
-    def __init__(self, image=None, owner=None):
-        super().__init__()
-        if image:
-            self.original_image = image
-        else:
-            self.original_image = pygame.Surface((60, 10), pygame.SRCALPHA)
-            self.original_image.fill((255, 0, 0))
-        self.image = self.original_image
-        self.rect = self.image.get_rect()
-
-        self.owner = None
-        self.damage = 15
-        self.range = 60
-
-        self.angle = 0
-        self.swinging = False
-        self.swing_speed = 10
-        self.max_swing_angle = 120
-        self.current_swing = 0
-
-    def start_attack(self):
-        if not self.swinging:
-            self.swinging = True
-            self.current_swing = -self.max_swing_angle // 2
-
-    def update(self):
-        if not self.owner:
-            return
-
-        center = self.owner.rect.center
-
-        # Base angle from player movement
-        base_angle = 0
-        if self.owner.velocity.length() != 0:
-            base_angle = math.degrees(
-                math.atan2(-self.owner.velocity.y, self.owner.velocity.x)
-            )
-
-        # Apply swing offset
-        if self.swinging:
-            self.current_swing += self.swing_speed
-            if self.current_swing >= self.max_swing_angle // 2:
-                self.swinging = False
-            swing_offset = self.current_swing
-        else:
-            swing_offset = 0
-
-        self.angle = base_angle + swing_offset
-
-        radians = math.radians(self.angle)
-        offset_x = math.cos(radians) * self.range
-        offset_y = -math.sin(radians) * self.range
-
-        self.image = pygame.transform.rotate(self.original_image, self.angle)
-        self.rect = self.image.get_rect(
-            center=(center[0] + offset_x, center[1] + offset_y)
-    )
-    
-    def check_collision(self, enemies):
-        """Damage enemies that collide with the sword"""
-        for enemy in enemies:
-            if self.rect.colliderect(enemy.rect):
-                enemy.take_damage(self.damage)
-
-
-# =========================
-# PROJECTILES
-# =========================
-class Projectile(pygame.sprite.Sprite):
-    def __init__(self, start_pos, target_pos, image=None):
-        super().__init__()
-        if image:
-            self.image = image
-        else:
-            self.image = pygame.Surface((12, 12), pygame.SRCALPHA)
-            pygame.draw.circle(self.image, (255, 0, 0), (6, 6), 6)
-        self.rect = self.image.get_rect(center=start_pos)
-
-        self.speed = 3
-
-        dx = target_pos[0] - start_pos[0]
-        dy = target_pos[1] - start_pos[1]
-        dist = math.hypot(dx, dy)
-
-        if dist != 0:
-            dx /= dist
-            dy /= dist
-
-        self.velocity = (dx * self.speed, dy * self.speed)
-
-    def update(self):
-        self.rect.x += self.velocity[0]
-        self.rect.y += self.velocity[1]
-
-        if (
-            self.rect.right < 0 or
-            self.rect.left > WIDTH or
-            self.rect.bottom < 0 or
-            self.rect.top > HEIGHT
-        ):
-            self.kill()
-
-# =========================
-# PROJECTILE Arrow
-# =========================
-
-class ProjectileArrow(Projectile):
-    def __init__(self, start_pos, target_pos, image=None):
-        super().__init__(start_pos, target_pos)
-        if image:
-            self.image = image
-        else:
-            self.image = pygame.Surface((20, 5), pygame.SRCALPHA)
-            pygame.draw.rect(self.image, (255, 255, 0), (0, 0, 20, 5))
-        self.rect = self.image.get_rect(center=start_pos)
-
-        # Recalculate velocity for arrow speed
-        self.speed = 5
-        dx = target_pos[0] - start_pos[0]
-        dy = target_pos[1] - start_pos[1]
-        dist = math.hypot(dx, dy)
-
-        if dist != 0:
-            dx /= dist
-            dy /= dist
-
-        self.velocity = (dx * self.speed, dy * self.speed)
-
-
-# =========================
-# ENEMY BASE
-# =========================
-class EnemyBase(pygame.sprite.Sprite):
-    def __init__(self, x, y, player, projectile_group, health, experience_value = 1, image=None):
-        super().__init__()
-
-        if image:
-            self.image = image
-        else:
-            self.image = pygame.Surface((40, 40))
-            self.image.fill((0, 0, 255))
-        self.rect = self.image.get_rect(center=(x, y))
-
-        self.player = player
-        self.projectile_group = projectile_group
-
-        self.speed = random.uniform(1.0, 2.5)
-        self.health = health
-        self.experience = experience_value
-        self.hit_cooldown = 0
-
-        self.state = "wander"
-        self.state_timer = random.randint(60, 180)
-
-        self.set_new_wander_dir()
-
-        self.shoot_cooldown = random.randint(120, 240)
-        self.timer = 0
-
-    def set_new_wander_dir(self):
-        vec = pygame.Vector2(random.uniform(-1, 1), random.uniform(-1, 1))
-        if vec.length() == 0:
-            vec = pygame.Vector2(1, 0)
-        self.wander_dir = vec.normalize()
-
-    def update(self):
-        self.update_state()
-        self.move()
-        self.shoot_logic()
-
-        if self.hit_cooldown > 0:
-            self.hit_cooldown -= 1
-
-    def update_state(self):
-        self.state_timer -= 1
-        if self.state_timer <= 0:
-            self.state_timer = random.randint(60, 180)
-            self.state = "chase" if self.state == "wander" else "wander"
-            self.set_new_wander_dir()
-
-    def move(self):
-        if self.state == "chase":
-            direction = pygame.Vector2(
-                self.player.rect.centerx - self.rect.centerx,
-                self.player.rect.centery - self.rect.centery
-            )
-            if direction.length() != 0:
-                direction = direction.normalize()
-        else:
-            direction = self.wander_dir
-
-        self.rect.x += direction.x * self.speed
-        self.rect.y += direction.y * self.speed
-
-    def shoot_logic(self):
-        self.timer += 1
-        if self.timer >= self.shoot_cooldown:
-            self.timer = 0
-            self.shoot()
-
-    def shoot(self):
-        orb = Projectile(self.rect.center, self.player.rect.center)
-        self.projectile_group.add(orb)
-
-    def take_damage(self, amount):
-        if self.hit_cooldown > 0:
-            return
-
-        self.health -= amount
-        self.hit_cooldown = 20
-
-        if self.health <= 0:
-            self.player.get_XP(self.experience)
-            self.kill()
-
-
-class EnemySlime(EnemyBase):
-    def __init__(self, x, y, player, projectile_group):
-        super().__init__(x, y, player, projectile_group, 50)
-
-
-class EnemySlimeBoss(EnemyBase):
-    def __init__(self, x, y, player, projectile_group):
-        super().__init__(x, y, player, projectile_group, 20)
-        self.image.fill((128, 0, 255))
-
+class GameSettings:
+    def __init__(self):
+        self.WIDTH = 1920
+        self.HEIGHT = 1080
+        self.FRAME_RATE = 60
+        self.TITLE = "Journey of Celleste"
+    def return_settings(self):
+        return self.WIDTH, self.HEIGHT, self.FRAME_RATE, self.TITLE
+
+game_settings = GameSettings()
+WIDTH, HEIGHT, FRAME_RATE, TITLE = game_settings.return_settings()
+
+from Player import Player
+from OrbitingSword import OrbitingSword as Sword
+from DirectionalSword import SwordDirectional
+from Enemys.Enemys import EnemySlime, EnemySlimeBoss
 
 # =========================
 # GAME
@@ -379,6 +30,7 @@ class Game:
         self.clock = pygame.time.Clock()
         self.running = True
         self.velocity = pygame.Vector2(1, 0)  # default facing right
+        self.message_queue = []
 
         self.player = Player(WIDTH // 2, HEIGHT // 2)
 
@@ -408,6 +60,28 @@ class Game:
         x = random.randint(0, WIDTH)
         y = random.randint(0, HEIGHT)
         self.bosses.add(EnemySlimeBoss(x, y, self.player, self.projectiles))
+    
+    def Load_message(self, text, type="info", duration=5):
+        if type == "info":
+            color = (255, 255, 255)
+            position = (WIDTH // 2, HEIGHT // 4)
+        elif type == "warning":
+            color = (255, 255, 0)
+            position = (WIDTH // 2, HEIGHT // 4 + 40)
+        elif type == "error":
+            color = (255, 0, 0)
+            position = (WIDTH // 2, HEIGHT // 4 + 80)
+        self.message_queue.append([text, color, position, duration])
+    
+    def draw_messages(self):
+        message = self.message_queue[0] if self.message_queue else None
+        if message:
+            text, color, position, duration = message
+            img = self.font.render(text, True, color)
+            self.screen.blit(img, (position[0] - img.get_width() // 2, position[1]))
+            message[3] -= 1
+            if message[3] <= 0:
+                self.message_queue.pop(0)
 
     def run(self):
         while self.running:
