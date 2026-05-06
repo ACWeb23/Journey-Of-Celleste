@@ -19,6 +19,41 @@ from Weapons.OrbitingSword import OrbitingSword as Sword
 from Weapons.DirectionalSword import SwordDirectional
 from Enemys.Enemys import EnemySlime, EnemySlimeBoss
 
+class Round:
+    def __init__(self, Round_Number, Round_Type, Round_ID, Difficulty) -> None:
+        self.Round_Number = Round_Number
+        self.Round_Type = Round_Type
+        self.Round_ID = Round_ID
+        self.Difficulty = Difficulty
+        self.round_level = 0
+        
+    def Set_Round_Level(self, Round_Number: int = 0, Round_Type: str = "Normal", Difficulty: str = "Easy") -> int:
+        ###########################################
+        # Parameters:
+        # Round_Number: The number of the round (int, default=0)
+        # Round_Type: The type of the round (str, default="Normal")
+        # Difficulty: The difficulty of the round (str, default="Easy")
+        # Description:
+        # This functiuon sets the round level based on the number of rounds and the type of round. 
+        # The round level is calculated by applying a floor function to a difficulty mulitplier that increases with the number of rounds, 
+        # and then multiplying that by a round type multiplier that increases based on the type of round (Normal, Boss, Elite).
+        ###########################################
+        Round_Difficulty = {"Easy": 0.33, "Medium": 0.66, "Hard": 1.25}
+        Round_Type_Multiplier = {"Normal": 1, "Boss": 1.5, "Elite": 2}
+        self.round_level =  (math.floor(1 + (Round_Number * Round_Difficulty[Difficulty]))) * Round_Type_Multiplier[Round_Type]
+        self.round_level = int(self.round_level)
+        return self.round_level
+    
+    def fetch_enemy_list(self, Round_ID: int = 0) -> list:
+        ###########################################
+        # Description:
+        # This function calls a database to fetch a list of enemies based on the round ID. 
+        # The round ID is used to determine which enemies should be included in the round and their spawn times, allowing for a dynamic and varied gameplay experience as the player progresses through different rounds.
+        ###########################################
+        enemy_list = []
+        return enemy_list
+
+
 # =========================
 # GAME
 # =========================
