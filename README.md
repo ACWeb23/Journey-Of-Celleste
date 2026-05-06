@@ -6,7 +6,7 @@
 - [ ]debuffs
 - [ ]maps
 - [ ]NPC's
-- [ ]Game Levels
+- [ ]Game Levels- In progress
 - [ ]Character Levels
 - [ ]Gear levels
 - [ ]Save game
