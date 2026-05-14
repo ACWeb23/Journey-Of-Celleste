@@ -1,0 +1,152 @@
+{
+    "Common Cards": {
+        "Health Potion": {
+            "Description": "Restores {{Effect_Value}} health instantly.",
+            "Rarity": "Common",
+            "Effect": "Health+",
+            "Effect_Value": 50,
+            "Duration": 0,
+            "Trigger_Type": "Null",
+            "Trigger_Value": 0
+        },
+        "Damage Boost": {
+            "Description": "Increases damage by {{1-Effect_Value}}%.",
+            "Rarity": "Common",
+            "Effect": "Damage+",
+            "Effect_Value": 1.15,
+            "Duration": -1,
+            "Trigger_Type": "Null",
+            "Trigger_Value": 0
+        },
+        "Speed Boost": {
+            "Description": "Increases speed by {{1-Effect_Value}}%.",
+            "Rarity": "Common",
+            "Effect": "Speed+",
+            "Effect_Value": 1.10,
+            "Duration": -1,
+            "Trigger_Type": "Null",
+            "Trigger_Value": 0
+        },
+        "Shield": {
+            "Description": "Grants a shield that absorbs {{Effect_Value}} damage for {{Duration}} seconds.",
+            "Rarity": "Common",
+            "Effect": "Health+",
+            "Effect_Value": 50,
+            "Duration": 30,
+            "Trigger_Type": "Health",
+            "Trigger_Value": 0.5
+        },
+        "ATK Speed Up": {
+            "Description": "Increases attack speed by {{1-Effect_Value}}%.",
+            "Rarity": "Common",
+            "Effect": "ATKSPD+",
+            "Effect_Value": 1.20,
+            "Duration": -1,
+            "Trigger_Type": "Null",
+            "Trigger_Value": 0
+        },
+        "Bonus Health": {
+            "Description": "Increases maximum health by {{1-Effect_Value}}%.",
+            "Rarity": "Common",
+            "Effect": "MAX_HP+",
+            "Effect_Value": 1.25,
+            "Duration": -1,
+            "Trigger_Type": "Null",
+            "Trigger_Value": 0
+        },
+        "Critical Hit Chance": {
+            "Description": "Increases critical hit chance by {{1-Effect_Value}}%.",
+            "Rarity": "Common",
+            "Effect": "CRIT_CHANCE+",
+            "Effect_Value": 1.05,
+            "Duration": -1,
+            "Trigger_Type": "Null",
+            "Trigger_Value": 0
+        },
+        "Critical Hit Damage": {
+            "Description": "Increases critical hit damage by {{1-Effect_Value}}%.",
+            "Rarity": "Common",
+            "Effect": "CRIT_DMG+",
+            "Effect_Value": 1.25,
+            "Duration": -1,
+            "Trigger_Type": "Null",
+            "Trigger_Value": 0
+        },
+        "Lifesteal": {
+            "Description": "Grants lifesteal that heals for {{1-Effect_Value}}% of damage dealt.",
+            "Rarity": "Common",
+            "Effect": "LIFESTEAL+",
+            "Effect_Value": 1.05,
+            "Duration": -1,
+            "Trigger_Type": "Null",
+            "Trigger_Value": 0
+        },
+        "XP Boost": {
+            "Description": "Increases experience gain by {{1-Effect_Value}}%.",
+            "Rarity": "Common",
+            "Effect": "XP+",
+            "Effect_Value": 1.20,
+            "Duration": -1,
+            "Trigger_Type": "Null",
+            "Trigger_Value": 0
+        }
+    },
+    "Rare Cards": {
+        "Invincibility": {
+            "Description": "Grants invincibility for {{Duration}} seconds.",
+            "Rarity": "Rare",
+            "Effect": "Invincibility",
+            "Effect_Value": 0,
+            "Duration": 5,
+            "Trigger_Type": "Null",
+            "Trigger_Value": 0
+        },
+        "Double Damage": {
+            "Description": "Doubles the damage dealt.",
+            "Rarity": "Rare",
+            "Effect": "Damage+",
+            "Effect_Value": 2.0,
+            "Duration": 10,
+            "Trigger_Type": "Null",
+            "Trigger_Value": 0
+        },
+        "Freeze Time": {
+            "Description": "Freezes time for {{Duration}} seconds.",
+            "Rarity": "Rare",
+            "Effect": "Freeze Time",
+            "Effect_Value": 0,
+            "Duration": 5,
+            "Trigger_Type": "Cast",
+            "Trigger_Value": 0
+        },
+        "Level Up": {
+            "Description": "Increases {PlayerName}'s level by 1.",
+            "Rarity": "Rare",
+            "Effect": "Level Up",
+            "Effect_Value": 1,
+            "Duration": 0,
+            "Trigger_Type": "Null",
+            "Trigger_Value": 0
+        }
+    },
+    "Legendary Cards": {
+        "Berserker Rage": {
+            "Description": "Increases damage by 150% when health is below 30%.",
+            "Rarity": "Legendary",
+            "Effect": "Damage+",
+            "Effect_Value": 2.5,
+            "Duration": 15,
+            "Trigger_Type": "Health",
+            "Trigger_Value": 0.3
+        },
+        "Celleste's Grace": {
+            "Description": "Permanently increases all stats by 50%",
+            "Rarity": "Legendary",
+            "Effect": "STATS+",
+            "Effect_Value": 1.5,
+            "Duration": -1,
+            "Trigger_Type": "Null",
+            "Trigger_Value": 0
+        }
+    }
+}

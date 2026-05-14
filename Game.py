@@ -1,6 +1,7 @@
 import random
 import pygame
 import math
+import json
 
 class GameSettings:
     def __init__(self):
@@ -54,15 +55,30 @@ class Round:
         enemy_list = []
         return enemy_list
     
-    def fetch_cards(self, Round_Number: int = 0) -> list:
+    def fetch_cards(self, Round_Number: int = 0) -> dict:
         ###########################################
         # Description:
         # This function picks four randon cards based on the round number.
         # A higher round number increases the chance of rare cards being dropped.
         # Some cards cards require a specific number of rounds to be eligible to be picked.
         ###########################################
+        x = Round_Number%10
+        card_list = {}
         
-        card_list = []
+        with open(self.cardFile, 'r') as file:
+            lines = file.readlines()
+            for line in lines[1:]:  # Skip header
+                card_info = line.strip().split(',')
+                card_name = card_info[0]
+                card_rarity = card_info[1]
+                card_min_round = int(card_info[2])
+                
+                if Round_Number >= card_min_round:
+                    rarity_chance = {"Common": 0.7, "Uncommon": 0.2, "Rare": 0.09, "Legendary": 0.01}
+                    if random.random() < rarity_chance[card_rarity]:
+                        card_list[card_name] = {"rarity": card_rarity, "min_round": card_min_round}
+
+        
         
         return card_list
 
