@@ -14,11 +14,63 @@ class Player(pygame.sprite.Sprite):
             self.image.fill((255, 0, 0))
         self.rect = self.image.get_rect(center=(x, y))
 
+        self.level = 0
         self.speed = 5
         self.health = 100
         self.experience = 0
+        self.atk = 10
+        self.defense = 10
+        self.atkSpeed = 1 # Base attack speed multiplier
+        self.critChance = 0.05 # Base critical hit chance (5%)
+        self.critDamage = 0.5 # Base critical damage multiplier (50%) This is addtive damage.
+        self.lifeSteal = 0
+        self.damage = 0 # This is addtive damage that is added to the player's final damage after atk and crit are calculated.
+        self.defensePercent = 0 # This is a flat percentage that damage is reduced before defense is calcutatec.
         self.equipment = []
         self.inventory = {}
+        self.buffs = {
+            "Speed": 0,
+            "Health": 0,
+            "Experience": 0,
+            "ATK": 0,
+            "DEF": 0,
+            "ATKspd": 0,
+            "Crit Chance": 0,
+            "Crit Damage": 0,
+            "Lifesteal": 0,
+            "Damage": 0,
+            "Defense%": 0
+        }
+        self.cards = []
+    
+    def apply_static_buffs(self):
+        #############################################
+        # Description:
+        # Applies static buffs to the player's
+        #############################################
+        for buff, value in self.buffs.items():
+            if buff == "Speed":
+                self.speed *= value # Speed buffs are multiplicative.
+            elif buff == "Health":
+                self.health *= value # Health buffs are multiplicative.
+            elif buff == "Experience":
+                self.experience *= value
+            elif buff == "ATK":
+                self.atk += value
+            elif buff == "DEF":
+                self.defense += value
+            elif buff == "ATKspd":
+                self.atkSpeed *= value
+            elif buff == "Crit Chance":
+                self.critChance += value
+            elif buff == "Crit Damage":
+                self.critDamage += value
+            elif buff == "Lifesteal":
+                self.lifeSteal += value
+            elif buff == "Damage":
+                self.damage += value
+            elif buff == "Defense%":
+                self.defensePercent += value
 
     def move(self, dx, dy):
         #############################################

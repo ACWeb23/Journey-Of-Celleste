@@ -9,6 +9,24 @@
             "Trigger_Type": "Null",
             "Trigger_Value": 0
         },
+        "Attack Up": {
+            "Description": "Increases the players base attack by {{1-Effect_Value}}.",
+            "Rarity": "Common",
+            "Effect": "ATK+",
+            "Effect_Value": 10,
+            "Duration": -1,
+            "Trigger_Type": "Null",
+            "Trigger_Value": 0
+        },
+        "Defense Up": {
+            "Description": "Increases the players base defense by {{1-Effect_Value}}.",
+            "Rarity": "Common",
+            "Effect": "DEF+",
+            "Effect_Value": 10,
+            "Duration": -1,
+            "Trigger_Type": "Null",
+            "Trigger_Value": 0
+        },
         "Damage Boost": {
             "Description": "Increases damage by {{1-Effect_Value}}%.",
             "Rarity": "Common",
@@ -58,7 +76,7 @@
             "Description": "Increases critical hit chance by {{1-Effect_Value}}%.",
             "Rarity": "Common",
             "Effect": "CRIT_CHANCE+",
-            "Effect_Value": 1.05,
+            "Effect_Value": 0.05,
             "Duration": -1,
             "Trigger_Type": "Null",
             "Trigger_Value": 0
