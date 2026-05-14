@@ -26,6 +26,7 @@ class Round:
         self.Round_ID = Round_ID
         self.Difficulty = Difficulty
         self.round_level = 0
+        self.cardFile = "Cards.csv"
         
     def Set_Round_Level(self, Round_Number: int = 0, Round_Type: str = "Normal", Difficulty: str = "Easy") -> int:
         ###########################################
@@ -52,6 +53,26 @@ class Round:
         ###########################################
         enemy_list = []
         return enemy_list
+    
+    def fetch_cards(self, Round_Number: int = 0) -> list:
+        ###########################################
+        # Description:
+        # This function picks four randon cards based on the round number.
+        # A higher round number increases the chance of rare cards being dropped.
+        # Some cards cards require a specific number of rounds to be eligible to be picked.
+        ###########################################
+        
+        card_list = []
+        
+        return card_list
+
+    def round_start(self):
+        ###########################################
+        # Description:
+        # This function starts the round by spawning enemies based on the enemy list fetched from the database. 
+        # It uses the round level to determine the strength and number of enemies that should be spawned, creating a challenging and engaging gameplay experience for the player.
+        ###########################################
+        pass
 
 
 # =========================

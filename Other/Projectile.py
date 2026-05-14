@@ -3,7 +3,6 @@
 # =========================
 import pygame
 import math
-import random
 from Game import game_settings
 WIDTH, HEIGHT, FRAME_RATE, TITLE = game_settings.return_settings()
 class Projectile(pygame.sprite.Sprite):
@@ -29,6 +28,10 @@ class Projectile(pygame.sprite.Sprite):
         self.velocity = (dx * self.speed, dy * self.speed)
 
     def update(self):
+        ###########################################
+        # Description:
+        # Updates the projectile's position based on its velocity and checks if it goes off-screen.
+        ###########################################
         self.rect.x += self.velocity[0]
         self.rect.y += self.velocity[1]
 
