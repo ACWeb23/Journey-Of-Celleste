@@ -71,6 +71,16 @@ class Player(pygame.sprite.Sprite):
                 self.damage += value
             elif buff == "Defense%":
                 self.defensePercent += value
+    
+    def load_card(self, card_Name:str):
+        #############################################
+        # Parameters:
+        # card_Name: The name of the card to load (str)
+        # Description:
+        # Loads the specified card into the player's hand.
+        #############################################
+        self.cards.append(card_Name)
+    
 
     def move(self, dx, dy):
         #############################################
